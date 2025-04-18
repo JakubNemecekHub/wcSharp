@@ -94,6 +94,7 @@ class Program
 		if (flags.words || !flags.Any()) Console.Write($"{result.words} ");
 		if (flags.bytes || !flags.Any()) Console.Write($"{result.bytes} ");
 		if (flags.characters)	         Console.Write($"{result.characters} ");
+		Console.WriteLine();
 	}
 
 	static void Wc(string[] files, bool lines, bool words, bool bytes, bool characters)
@@ -105,6 +106,7 @@ class Program
 		var totalResult = new Count(0, 0, 0, 0);
 		var result = new Count(0, 0, 0, 0);
 
+		bool multi = files.Length > 1;
 		foreach (var file in files)
 		{
 			if (!File.Exists(file))
@@ -115,9 +117,14 @@ class Program
 			using var inputStream = new FileStream(file, FileMode.Open, FileAccess.Read);
 			result = ProcessInput(inputStream);
 			totalResult += result;
+			if (multi) Console.Write($"{file} ");
 			Print(result, flags);
 		}
-		if (files.Length > 1) Print(totalResult, flags);
+		if (multi)
+		{
+			Console.Write($"Total ");
+			Print(totalResult, flags);
+		}
 		foreach (var file in missingFiles)
 		{
 			Console.WriteLine($"File \"{file}\" not found.");
