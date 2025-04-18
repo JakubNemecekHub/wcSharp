@@ -12,7 +12,10 @@ class Program
 		var filesArgument = new Argument<string[]>(
 			name: "--files",
 			description: "Files to process."
-		);
+		)
+		{
+			Arity = ArgumentArity.OneOrMore
+		};
 
 		var linesOption = new Option<bool>(
 			aliases: ["-l", "--lines"],
@@ -102,30 +105,22 @@ class Program
 		var totalResult = new Count(0, 0, 0, 0);
 		var result = new Count(0, 0, 0, 0);
 
-		if (files.Length == 0)
+		foreach (var file in files)
 		{
-			result = ProcessInput(Console.OpenStandardInput());
+			if (!File.Exists(file))
+			{
+				missingFiles.Add(file);
+				continue;
+			}
+			using var inputStream = new FileStream(file, FileMode.Open, FileAccess.Read);
+			result = ProcessInput(inputStream);
+			totalResult += result;
 			Print(result, flags);
 		}
-		else
+		if (files.Length > 1) Print(totalResult, flags);
+		foreach (var file in missingFiles)
 		{
-			foreach (var file in files)
-			{
-				if (!File.Exists(file))
-				{
-					missingFiles.Add(file);
-					continue;
-				}
-				using var inputStream = new FileStream(file, FileMode.Open, FileAccess.Read);
-				result = ProcessInput(inputStream);
-				totalResult += result;
-				Print(result, flags);
-			}
-			if (files.Length > 1) Print(totalResult, flags);
-			foreach (var file in missingFiles)
-			{
-				Console.WriteLine($"File \"{file}\" not found.");
-			}
+			Console.WriteLine($"File \"{file}\" not found.");
 		}
 	}
 
