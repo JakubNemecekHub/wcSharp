@@ -14,18 +14,6 @@ class Program
 			description: "Files to process."
 		);
 
-		var bytesOption = new Option<bool>(
-			aliases: ["-c", "--bytes"],
-			description: "print the byte counts",
-			getDefaultValue: () => false
-		);
-
-		var charsOption = new Option<bool>(
-			aliases: ["-m", "--chars"],
-			description: "print the character counts",
-			getDefaultValue: () => false
-		);
-
 		var linesOption = new Option<bool>(
 			aliases: ["-l", "--lines"],
 			description: "print the newline counts",
@@ -38,14 +26,26 @@ class Program
 			getDefaultValue: () => false
 		);
 
+		var bytesOption = new Option<bool>(
+			aliases: ["-c", "--bytes"],
+			description: "print the byte counts",
+			getDefaultValue: () => false
+		);
+
+		var charsOption = new Option<bool>(
+			aliases: ["-m", "--chars"],
+			description: "print the character counts",
+			getDefaultValue: () => false
+		);
+
 		rootCommand.AddArgument(filesArgument);
-		rootCommand.AddOption(bytesOption);
-		rootCommand.AddOption(charsOption);
 		rootCommand.AddOption(linesOption);
 		rootCommand.AddOption(wordsOption);
+		rootCommand.AddOption(bytesOption);
+		rootCommand.AddOption(charsOption);
 
 		rootCommand.Handler = CommandHandler.Create<string[], bool, bool, bool, bool>(
-			(files, bytes, chars, lines, words) => Wc(files, bytes, chars, lines, words)
+			(files, lines, words, bytes, chars) => Wc(files, lines, words, bytes, chars)
 		);
 
 		return rootCommand.Invoke(args);
@@ -93,7 +93,7 @@ class Program
 		if (flags.characters)	         Console.Write($"{result.characters} ");
 	}
 
-	static void Wc(string[] files, bool bytes, bool characters, bool lines, bool words)
+	static void Wc(string[] files, bool lines, bool words, bool bytes, bool characters)
 	{
 		var missingFiles = new List<string>();
 
